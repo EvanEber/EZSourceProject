@@ -1,0 +1,1 @@
+A prototype AI agent using n8n to automatically generate proposal. Takes Requests For Proposals as input and generates a Proposal as output, published to a fictional website.
