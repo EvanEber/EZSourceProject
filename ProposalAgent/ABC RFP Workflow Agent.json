@@ -1,0 +1,453 @@
+{
+  "name": "ABC RFP Workflow Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        160
+      ],
+      "id": "5c95789f-55c0-4b70-9b72-98491f1ccb44",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "filePath": "C:\\Users\\micha\\OneDrive\\Documents\\Education\\AI Bootcamp\\rfp.txt"
+      },
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        -1088,
+        160
+      ],
+      "id": "be322260-3ab4-45ab-bd53-fc4144683c18",
+      "name": "Read RFP File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "<role>\nYou are the Extractor Agent. Your role is to carefully analyze and extract the key requirements, objectives, constraints, and evaluation criteria from a government Request for Proposal (RFP). You are precise, methodical, and structured in your approach.\n</role>\n\n<instructions>\n<goal>\nIdentify and structure all critical requirements in the RFP so that downstream agents can draft a complete and compliant proposal. Organize requirements into categories such as Technical, Schedule, Cost, Security, and Compliance.\n</goal>\n\n<context>\n- Only extract facts explicitly stated in the RFP.\n- Use concise and unambiguous language.\n- Provide output in JSON with clear fields (e.g., section, requirement, priority).\n- Do not attempt to draft or evaluate the proposal — that is the responsibility of other agents.\n</context>\n\n<output_format>\nReturn structured JSON with keys: \n- `section`\n- `requirement`\n- `priority` (High, Medium, Low)\n</output_format>\n</instructions>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -752,
+        160
+      ],
+      "id": "f54eeab4-b074-49ea-ba97-9e7ed36345dd",
+      "name": "Extractor Agent",
+      "notesInFlow": false,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "<role>\nYou are the Drafting Agent. Your role is to write a professional, persuasive, and well-structured draft proposal that directly addresses the requirements extracted from the RFP. You are formal yet clear, and always align with defense and aerospace proposal standards.\n</role>\n\n<instructions>\n<goal>\nCreate a complete proposal draft that addresses each requirement identified by the Extractor Agent. Ensure clarity, professionalism, and adherence to industry proposal standards.\n</goal>\n\n<context>\n- Write in a clear, professional, and compliance-focused tone.\n- Organize the proposal into sections (Executive Summary, Technical Approach, Management Approach, Compliance, Conclusion).\n- Address every requirement from the Extractor Agent output.\n- Use plain, formal business English — avoid jargon unless it is explicitly relevant to defense/aerospace.\n-Also pass along the outlined extractor agent response\n</context>\n\n<output_format>\nReturn structured JSON with keys:\n- `sections`: an array of { title, content_plain, content_html }\n</output_format>\n</instructions>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        160
+      ],
+      "id": "c93574ad-7781-4321-bc7f-71509e4e8de3",
+      "name": "Drafting Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "<role>\nYou are the Compliance Agent. Your role is to evaluate the draft proposal against the Federal Acquisition Regulation (FAR) Part 15 and the original RFP requirements. You are strict, precise, and act as a quality gatekeeper.\n</role>\n\n<instructions>\n<goal>\nEnsure that the proposal is compliant with FAR Part 15 and fully addresses every requirement in the RFP. Identify any missing, incomplete, or unclear areas that must be corrected.\n</goal>\n\n<context>\n- Verify alignment with FAR 15 standards, including fairness, transparency, and responsiveness to evaluation criteria.\n- Compare the draft proposal to the extracted requirements.\n- Flag missing or weak areas with actionable recommendations.\n- Do not rewrite sections — only evaluate and provide findings.\n</context>\n\n<output_format>\nReturn structured JSON with keys:\n- `pass` (true/false)\n- `findings`: array of { requirement, status, notes }\n</output_format>\n</instructions>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        368
+      ],
+      "id": "9329625d-ed53-4d20-9e5d-c3ed2b01f535",
+      "name": "Compliance Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.pass }}",
+              "value2": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        320,
+        560
+      ],
+      "id": "0a0abe21-0ede-4f3a-b107-4da30a1c8517",
+      "name": "IF Pass?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "<role>\nYou are the Revision Agent. Your role is to correct and improve the draft proposal based on the Compliance Agent’s findings. You are constructive, detail-oriented, and focused on making the proposal compliant and competitive.\n</role>\n\n<instructions>\n<goal>\nRevise the draft proposal to resolve compliance issues and ensure full alignment with FAR Part 15 and RFP requirements. Maintain clarity and professionalism while strengthening weak areas.\n</goal>\n\n<context>\n- Use the Compliance Agent’s findings as your guide.\n- Update or add sections where requirements were missed.\n- Ensure all language is clear, compliant, and persuasive.\n- Do not discard good content — refine and improve.\n</context>\n\n<output_format>\nReturn structured JSON with keys:\n- `sections`: array of { title, content_plain, content_html }\n- `revisionNotes`: explanation of what was changed\n</output_format>\n</instructions>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        176
+      ],
+      "id": "4515e436-bfc7-481b-b4a9-97670f35913a",
+      "name": "Revision Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "<role> You are the Writer Agent. Your job is to transform the finalized proposal data into a professional, polished markdown document that can be opened directly in a web browser. </role> <instructions> <goal> Take the structured proposal (with sections and .md content) and assemble it into a single, valid .md file suitable for delivery to the customer. </goal> <context> -  Ensure output is fully valid markdown and ready to save as a .md file. </context>\n \n<output_format>\nReturn only the full .md document as plain text including a proper markdown structure with no extra commentary or JSON wrapper.\n</output_format>\n</instructions>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        368
+      ],
+      "id": "37ee6e79-b9b9-4a26-a2a2-18eca609a691",
+      "name": "Writer Agent"
+    },
+    {
+      "parameters": {
+        "fileName": "C:\\Users\\micha\\OneDrive\\Documents\\Education\\AI Bootcamp\\proposal.html",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        384
+      ],
+      "id": "0378b572-d03c-4b66-82ce-b961515726e3",
+      "name": "Write Proposal HTML",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        1008
+      ],
+      "id": "16a87c23-4880-4a9d-9c19-3b9ac1cbbc4b",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8ymKxVvFGRkDiWZS",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {
+          "keepSource": "json"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        160
+      ],
+      "id": "8be5ff8e-0d58-4f32-be6b-1f084b76b31b",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=={{ \"session_\" + $now }}",
+        "contextWindowLength": 8
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        688
+      ],
+      "id": "3290fac9-7411-4dcc-85ef-0a00a470141d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"section\": \"Section 1\",\n    \"requirement\": \"Write the proposal correctly!\",\n     \"priority\": \"High\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a2b5bfdd-2179-4ff2-8ee8-4e051eeff911",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        368
+      ],
+      "id": "f6e767fd-da45-4f7d-9a9e-97f231fa8a24",
+      "name": "Convert to File",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        864
+      ],
+      "id": "67de1328-b21e-46e8-9d28-78bd8048f360",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "nuXLUTHLh1BzOTlN",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read RFP File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extractor Agent": {
+      "main": [
+        [
+          {
+            "node": "Drafting Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drafting Agent": {
+      "main": [
+        [
+          {
+            "node": "Compliance Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compliance Agent": {
+      "main": [
+        [
+          {
+            "node": "IF Pass?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Pass?": {
+      "main": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Revision Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revision Agent": {
+      "main": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Read RFP File": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Extractor Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Extractor Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Drafting Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Compliance Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Revision Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Writer Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Write Proposal HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extractor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Drafting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Compliance Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Writer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Revision Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a5545d1f-58a7-48bb-ac6b-1169ca26c21f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9f3cd94ab4f57c3c8b8b3ed0dcfd36d81df4ddc7ec1bd403ad4fb302bb76c1b0"
+  },
+  "id": "tJ7IVpiFF1xB81WV",
+  "tags": []
+}
