@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Upload Proposal — ABC Corp</title>
+  <style>
+    :root{--accent:#0b66ff;--muted:#666;--bg:#f7f9fc}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.5;margin:0;background:var(--bg);color:#111}
+    main{max-width:760px;margin:2rem auto;padding:1rem}
+    .card{background:#fff;border:1px solid #e6e9ef;border-radius:8px;padding:1rem}
+    label{display:block;margin-top:.75rem;font-weight:600}
+    input[type="text"], input[type="date"], textarea, input[type="file"]{width:100%;padding:.6rem;border:1px solid #d7dce7;border-radius:6px;margin-top:.35rem}
+    textarea{min-height:120px;resize:vertical}
+    .row{display:flex;gap:.5rem}
+    .muted{color:var(--muted);font-size:.95rem}
+    .actions{display:flex;gap:.5rem;align-items:center;margin-top:1rem}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    .message{margin-top:.75rem;padding:.6rem;border-radius:6px}
+    .success{background:#e6fbf1;color:#02512f;border:1px solid #c9f1dd}
+    .error{background:#fff1f1;color:#7a1f1f;border:1px solid #f3c7c7}
+    a.button{background:var(--accent);color:#fff;padding:.45rem .75rem;border-radius:6px;text-decoration:none;font-weight:600}
+  </style>
+</head>
+<body>
+  <header style="padding:1rem;border-bottom:1px solid #e6e9ef;background:#fff">
+    <a href="index.html" class="button">← Back to Home</a>
+  </header>
+
+  <main>
+    <h1 style="margin-top:0">Upload Proposal</h1>
+    <p class="muted">Submit a new proposal (.md). All fields are required.</p>
+
+    <div class="card">
+      <form id="uploadForm">
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" required />
+
+        <label for="author">Author</label>
+        <input id="author" name="author" type="text" required />
+
+        <label for="date">Date</label>
+        <input id="date" name="date" type="date" required />
+
+        <label for="summary">Summary</label>
+        <textarea id="summary" name="summary" required></textarea>
+
+        <label for="file">Markdown file (.md)</label>
+        <input id="file" name="file" type="file" accept=".md" required />
+
+        <div class="actions">
+          <button id="submitBtn" type="submit" disabled>Upload Proposal</button>
+          <div id="status" class="muted" aria-live="polite"></div>
+        </div>
+
+        <div id="messageArea" aria-live="polite"></div>
+      </form>
+    </div>
+  </main>
+
+  <footer style="padding:1rem;color:var(--muted);font-size:.9rem;text-align:center">ABC Corp — Proposal Upload</footer>
+
+  <script>
+    (function(){
+      const form = document.getElementById('uploadForm');
+      const titleEl = document.getElementById('title');
+      const authorEl = document.getElementById('author');
+      const dateEl = document.getElementById('date');
+      const summaryEl = document.getElementById('summary');
+      const fileEl = document.getElementById('file');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusEl = document.getElementById('status');
+      const msgArea = document.getElementById('messageArea');
+
+      function extIsValid(name){
+        return /\.(md|markdown)$/i.test(name);
+      }
+
+      function validate(){
+        const ok = titleEl.value.trim() && authorEl.value.trim() && dateEl.value && summaryEl.value.trim() && fileEl.files.length === 1 && extIsValid(fileEl.files[0].name);
+        if(fileEl.files.length === 1 && !extIsValid(fileEl.files[0].name)){
+          statusEl.textContent = 'Please choose a .md file.';
+        } else {
+          statusEl.textContent = '';
+        }
+        submitBtn.disabled = !ok;
+      }
+
+      [titleEl, authorEl, dateEl, summaryEl, fileEl].forEach(el=>{
+        el.addEventListener('input', validate);
+        el.addEventListener('change', validate);
+      });
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        msgArea.innerHTML = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading…';
+        try{
+          const fd = new FormData();
+          fd.append('title', titleEl.value.trim());
+          fd.append('author', authorEl.value.trim());
+          fd.append('date', dateEl.value);
+          fd.append('summary', summaryEl.value.trim());
+          fd.append('file', fileEl.files[0]);
+
+          const res = await fetch('/upload', { method: 'POST', body: fd });
+          const contentType = (res.headers.get('content-type') || '').toLowerCase();
+          let data;
+          if (contentType.includes('application/json')) {
+            // server returned JSON as expected
+            data = await res.json();
+          } else {
+            // fallback: server returned non-JSON (often an HTML error page). Read text and surface a helpful message.
+            const text = await res.text();
+            const snippet = text ? text.slice(0, 200) + (text.length > 200 ? '...' : '') : 'empty response';
+            throw new Error('Server returned non-JSON response: ' + snippet);
+          }
+          if(res.ok && data && data.success){
+            msgArea.innerHTML = '<div class="message success">' + escapeHtml(data.message) + '</div>';
+            // reset form
+            form.reset();
+            submitBtn.textContent = 'Upload Proposal';
+            submitBtn.disabled = true;
+          } else {
+            msgArea.innerHTML = '<div class="message error">' + escapeHtml((data && data.message) || 'Upload failed') + '</div>';
+            submitBtn.textContent = 'Upload Proposal';
+            validate();
+          }
+        }catch(err){
+          msgArea.innerHTML = '<div class="message error">Upload failed: ' + escapeHtml(err.message) + '</div>';
+          submitBtn.textContent = 'Upload Proposal';
+          validate();
+        }
+      });
+
+      function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c])); }
+    })();
+  </script>
+</body>
+</html>

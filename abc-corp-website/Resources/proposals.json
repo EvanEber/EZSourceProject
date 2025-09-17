@@ -1,0 +1,18 @@
+{
+    "proposals": [
+        {
+            "title": "Website Redesign Proposal",
+            "author": "Jane Doe",
+            "date": "2025-09-16",
+            "summary": "Redesign the ABC Corp public website to improve conversion and accessibility.",
+            "file": "website-redesign.md"
+        },
+        {
+            "title": "Purchase of Web Service to Build & Host ABC Corp Public Website",
+            "author": "Janet Doe",
+            "date": "2025-09-17",
+            "summary": "This proposal requests approval to purchase a managed web service to design, build, and host a new ABC Corp public website.",
+            "file": "1758128063928-website-acquisition.md"
+        }
+    ]
+}

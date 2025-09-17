@@ -1,0 +1,43 @@
+# Node dependencies
+node_modules/
+
+# Build output
+/dist/
+/build/
+/out/
+/.next/     # if using Next.js
+/.cache/
+/public/build/
+
+# Environment files (local secrets)
+.env
+.env.*.local
+
+# Logs and temp files
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+*.tmp
+
+# Coverage
+coverage/
+.nyc_output/
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# OS and editor configs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-*
+
+# Misc
+.cache/
+.tmp/
+*.bak
+
+# NOTE: Do NOT ignore the Resources folder or markdown files
+# (keep proposals/*.md and Resources/proposals.json under version control)
