@@ -1,1 +1,5 @@
 A prototype AI agent using n8n to automatically generate proposal. Takes Requests For Proposals as input and generates a Proposal as output, published to a fictional website.
+* INSTRUCTIONS *
+You need to have downloaded the repo to your local machine.
+This directory contains JSON downloaded from n8n. Upload this JSON object into your local n8n instance to build out the workflow.
+The Agent requires the location of the ABC Corp Website folder on your local machine, where it can save generated outputs.
