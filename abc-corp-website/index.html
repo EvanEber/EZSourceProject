@@ -2,150 +2,403 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ABC Corp — Proposals</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ABC Corp — Government Software Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--accent:#0b66ff;--muted:#666;--bg:#f7f9fc}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.5;margin:0;background:var(--bg);color:#111}
-    header{background:#fff;padding:1rem 1.25rem;border-bottom:1px solid #e6e9ef}
-    header h1{margin:0;font-size:1.125rem}
-    .container{display:flex;gap:1rem;padding:1rem}
-    #sidebar{width:320px;max-width:40%;min-width:220px}
-    #sidebar input{width:100%;padding:.5rem;border:1px solid #d7dce7;border-radius:6px;margin-bottom:.5rem}
-    #proposals{list-style:none;padding:0;margin:0;border:1px solid #e6e9ef;background:#fff;border-radius:6px;max-height:65vh;overflow:auto}
-    #proposals li{padding:.75rem .85rem;border-bottom:1px solid #f1f3f6;cursor:pointer}
-    #proposals li:last-child{border-bottom:0}
-    #proposals li:hover{background:#fbfdff}
-    #proposals li .meta{font-size:.875rem;color:var(--muted)}
-    #viewer{flex:1;background:#fff;border-radius:6px;padding:1rem;border:1px solid #e6e9ef;max-height:75vh;overflow:auto}
-    #viewer .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-    #viewer .toolbar a{color:var(--accent);text-decoration:none}
-    pre{background:#0b1220;color:#e6eef8;padding:1rem;border-radius:6px;overflow:auto}
-    @media (max-width:800px){.container{flex-direction:column}#sidebar{width:100%;max-width:none}}
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa7b2;
+      --accent:#3b82f6;
+      --accent-2:#06b6d4;
+      --glass: rgba(255,255,255,0.04);
+      --radius:14px;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#071028 0%, #061327 50%, #04111f 100%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding:32px;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .brand{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      text-decoration:none;
+      color:inherit;
+    }
+    .logo{
+      width:54px;
+      height:54px;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:grid;
+      place-items:center;
+      font-weight:700;
+      font-size:18px;
+      color:#041027;
+      box-shadow: 0 6px 20px rgba(3,7,18,0.6);
+    }
+    nav a{
+      color:var(--muted);
+      text-decoration:none;
+      margin-left:18px;
+      font-weight:600;
+    }
+    nav a.cta{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      padding:10px 14px;
+      border-radius:10px;
+      color:#021024;
+      margin-left:18px;
+      box-shadow: 0 6px 20px rgba(59,130,246,0.15);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      margin-top:28px;
+      align-items:center;
+    }
+    .hero-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:28px;
+      box-shadow: 0 12px 40px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    h1{
+      margin:0 0 12px 0;
+      font-size:36px;
+      letter-spacing:-0.6px;
+      line-height:1.06;
+    }
+    p.lead{
+      margin:0 0 20px 0;
+      color:var(--muted);
+      font-size:16px;
+    }
+    .actions{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-top:8px;
+    }
+    .btn{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:inherit;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      text-decoration:none;
+    }
+    .btn.primary{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      border:0;
+      color:#021024;
+      box-shadow: 0 12px 30px rgba(59,130,246,0.12);
+    }
+
+    .highlights{
+      display:flex;
+      gap:12px;
+      margin-top:16px;
+      color:var(--muted);
+      font-size:14px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      background:var(--glass);
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    /* Capabilities */
+    .capabilities{
+      margin-top:36px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+    .cap-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .cap-icon{
+      width:48px;
+      height:48px;
+      border-radius:10px;
+      background:rgba(255,255,255,0.03);
+      display:grid;
+      place-items:center;
+      font-weight:700;
+      color:var(--accent-2);
+      flex-shrink:0;
+    }
+    .cap-title{font-weight:700;margin:0 0 6px 0}
+    .cap-desc{margin:0;color:var(--muted);font-size:14px}
+
+    /* Success vignettes */
+    .vignettes{
+      margin-top:36px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+    .vignette{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .vignette h4{margin:0 0 8px 0}
+    .vignette p{margin:0;color:var(--muted);font-size:14px}
+
+    /* Contact */
+    .contact{
+      margin-top:36px;
+      display:grid;
+      grid-template-columns:1fr 340px;
+      gap:20px;
+      align-items:start;
+    }
+    .contact-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .contact .meta{color:var(--muted);font-size:14px;margin-bottom:8px}
+
+    footer{
+      margin-top:40px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr}
+      .capabilities, .vignettes{grid-template-columns:repeat(2,1fr)}
+      .contact{grid-template-columns:1fr}
+    }
+    @media (max-width:600px){
+      .capabilities, .vignettes{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h1>ABC Corp — Proposals</h1>
-        <p style="margin:0;color:var(--muted);font-size:.95rem">Browse, preview, and download proposals published by ABC Corp.</p>
-      </div>
-      <div>
-        <a href="upload.html" style="background:var(--accent);color:#fff;padding:0.45rem 0.75rem;border-radius:6px;text-decoration:none;font-weight:600">Upload Proposal</a>
-      </div>
-    </div>
-    <!-- <p style="margin:0;color:var(--muted);font-size:.95rem">Browse, preview, and download proposals published by ABC Corp.</p>
--->
-  </header>
-
   <div class="container">
-    <aside id="sidebar">
-      <input id="search" placeholder="Filter proposals..." aria-label="Filter proposals" />
-      <ul id="proposals" aria-live="polite">
-        <!-- Filled by script -->
-      </ul>
-    </aside>
-
-    <section id="viewer">
-      <div class="toolbar">
-        <div id="currentTitle">Select a proposal</div>
+    <header>
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">ABC</div>
         <div>
-          <a id="downloadLink" href="#" download style="display:none">Download .md</a>
+          <div style="font-weight:700">ABC Corp</div>
+          <div style="font-size:13px;color:var(--muted)">Trusted government software partner</div>
         </div>
-      </div>
-      <article id="content">
-        <p style="color:var(--muted)">Choose a proposal from the list to preview its contents.</p>
-      </article>
-    </section>
+      </a>
+      <nav>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#success">Success</a>
+        <a href="#contact">Contact</a>
+        <a class="cta" href="proposals.html">View Proposals</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-card">
+          <h1>Modern software & systems engineering for US government agencies</h1>
+          <p class="lead">ABC Corp delivers secure, mission-focused software solutions — cloud modernization, cybersecurity, data analytics and systems integration — tailored for federal, state, and defense customers.</p>
+
+          <div class="actions">
+            <a class="btn primary" href="proposals.html">Browse Proposals</a>
+            <a class="btn" href="#contact">Request a Briefing</a>
+          </div>
+
+          <div class="highlights" style="margin-top:18px">
+            <div class="pill">FedRAMP Ready</div>
+            <div class="pill">DoD & Civilian Agencies</div>
+            <div class="pill">ISO 27001-aligned</div>
+            <div class="pill">GSA Schedule Holder</div>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-labelledby="quick-stats">
+          <h3 id="quick-stats" style="margin:0 0 12px 0">Quick Facts</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="color:var(--muted)">Years supporting government</div>
+              <div style="font-weight:700">12+</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="color:var(--muted)">Contracts completed</div>
+              <div style="font-weight:700">48</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="color:var(--muted)">Primary NAICS</div>
+              <div style="font-weight:700">541511, 541512</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="color:var(--muted)">GSA / Schedule</div>
+              <div style="font-weight:700">47QSMA18D00AA</div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="capabilities" class="capabilities" aria-label="Capabilities">
+        <div class="cap-card">
+          <div class="cap-icon">☁️</div>
+          <div>
+            <div class="cap-title">Cloud Modernization</div>
+            <div class="cap-desc">Design & migrate applications to secure multi-cloud architectures (AWS, Azure, GCP) with zero-downtime strategies and cost optimization.</div>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-icon">🔒</div>
+          <div>
+            <div class="cap-title">Cybersecurity & Compliance</div>
+            <div class="cap-desc">Risk assessments, secure SDLC, FedRAMP readiness, continuous monitoring, and incident response aligned to federal standards.</div>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-icon">📊</div>
+          <div>
+            <div class="cap-title">Data Analytics & AI</div>
+            <div class="cap-desc">Modern data platforms, analytics pipelines, and ML prototypes that enable faster mission insights and evidence-driven decisions.</div>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-icon">🧩</div>
+          <div>
+            <div class="cap-title">Systems Integration</div>
+            <div class="cap-desc">Integrate legacy systems with modern APIs and microservices to streamline operations and improve interoperability across agencies.</div>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-icon">⚙️</div>
+          <div>
+            <div class="cap-title">Custom Software Engineering</div>
+            <div class="cap-desc">Agile teams delivering secure, user-centered enterprise applications and mission-critical dashboards on-time and on-budget.</div>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-icon">🗂️</div>
+          <div>
+            <div class="cap-title">Program & Project Management</div>
+            <div class="cap-desc">PMP-certified PMs and cleared technical leads managing schedules, budgets, risks, and vendor coordination for complex procurements.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="success" style="margin-top:24px">
+        <h2 style="margin:0 0 12px 0">Selected Success Vignettes</h2>
+        <div class="vignettes" aria-live="polite">
+          <div class="vignette">
+            <h4>Modernizing Case Management for a Federal Agency</h4>
+            <p>Over 18 months, ABC Corp migrated a legacy case management system to a cloud-native platform, improving processing throughput by 3x and reducing hosting costs by 42% while maintaining full data sovereignty.</p>
+          </div>
+
+          <div class="vignette">
+            <h4>Secure Data Platform for Defense Research</h4>
+            <p>Delivered a secure analytics platform that aggregated classified and unclassified datasets, enabling analysts to reduce time-to-insight by 60% under strict accreditation requirements.</p>
+          </div>
+
+          <div class="vignette">
+            <h4>Rapid Response Cybersecurity Remediation</h4>
+            <p>Supported a rapid incident-response engagement for a civilian agency, containing a critical vulnerability, implementing compensating controls, and completing a security hardening plan in 10 days.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="contact">
+        <div class="contact-card">
+          <h3 style="margin:0 0 8px 0">Contact & Business Development</h3>
+          <div class="meta">We welcome RFP inquiries, teaming requests, and briefings. Typical response time: 1 business day.</div>
+
+          <div style="display:flex;gap:12px;flex-direction:column;">
+            <div>
+              <strong>ABC Corp</strong><br/>
+              2100 Pentagon Ave, Suite 500<br/>
+              Arlington, VA 22202
+            </div>
+
+            <div style="margin-top:8px">
+              <div style="color:var(--muted);font-size:13px">Phone</div>
+              <div style="font-weight:700">+1 (703) 555-0147</div>
+            </div>
+
+            <div style="margin-top:8px">
+              <div style="color:var(--muted);font-size:13px">Email</div>
+              <div style="font-weight:700">contracts@abccorp.example</div>
+            </div>
+
+            <div style="margin-top:8px">
+              <div style="color:var(--muted);font-size:13px">CAGE / DUNS</div>
+              <div style="font-weight:700">CAGE: 1A2B3 | DUNS: 123456789</div>
+            </div>
+
+            <div style="margin-top:12px">
+              <a class="btn primary" href="mailto:contracts@abccorp.example">Email Business Office</a>
+              <a class="btn" href="proposals.html" style="margin-left:8px">Download Proposal Index</a>
+            </div>
+          </div>
+        </div>
+
+        <aside class="contact-card" aria-labelledby="briefing">
+          <h4 id="briefing" style="margin:0 0 8px 0">Request a Briefing</h4>
+          <p class="meta">Fill in the minimal details below and our BD team will reach out to schedule a capability briefing and non-disclosure if required.</p>
+
+          <form onsubmit="alert('This is a demo page. Please email contracts@abccorp.example to reach us.'); return false;" style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <input name="name" placeholder="Name" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+            <input name="org" placeholder="Organization" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+            <input name="email" placeholder="Email" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+            <button class="btn primary" type="submit">Request Briefing</button>
+          </form>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      © ABC Corp — Delivering secure software solutions for government customers • Privacy & Terms • This site contains fictional company data for demonstration only.
+    </footer>
   </div>
-
-  <footer style="padding:1rem;color:var(--muted);font-size:.9rem">Sample site for ABC Corp proposals. Markdown files are served from the Resources/ folder.</footer>
-
-  <!-- Marked + DOMPurify from CDN to render markdown safely in-browser -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-  <script>
-    // Minimal client-side app to list and view proposal markdown files from Resources/
-    const proposalsListEl = document.getElementById('proposals');
-    const contentEl = document.getElementById('content');
-    const currentTitleEl = document.getElementById('currentTitle');
-    const downloadLinkEl = document.getElementById('downloadLink');
-    const searchEl = document.getElementById('search');
-
-    async function fetchJSON(path){
-      const res = await fetch(path);
-      if(!res.ok) throw new Error('Failed to load path:' + path);
-      return res.json();
-    }
-
-    function renderMarkdown(md){
-      // marked.parse -> HTML, DOMPurify to sanitize
-      const html = DOMPurify.sanitize(marked.parse(md || ''));
-      contentEl.innerHTML = html;
-    }
-
-    function makeListItem(item){
-      const li = document.createElement('li');
-      li.tabIndex = 0;
-      li.setAttribute('role','button');
-      li.innerHTML = `<strong>${escapeHtml(item.title)}</strong><div class="meta">${escapeHtml(item.date || '')} ${item.author? '• ' + escapeHtml(item.author): ''}</div>`;
-      li.addEventListener('click', ()=> loadProposal(item));
-      li.addEventListener('keypress', (e)=>{ if(e.key === 'Enter') loadProposal(item); });
-      return li;
-    }
-
-    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c])); }
-
-    async function loadProposal(item){
-      try{
-        currentTitleEl.textContent = item.title || item.file;
-        downloadLinkEl.href = 'Resources/' + item.file;
-        downloadLinkEl.style.display = 'inline';
-        downloadLinkEl.setAttribute('download', item.file);
-        const mdRes = await fetch('Resources/' + item.file);
-        if(!mdRes.ok) throw new Error('Failed to fetch proposal file');
-        const md = await mdRes.text();
-        renderMarkdown(md);
-        // update hash for linking
-        history.replaceState(null,'', '#' + encodeURIComponent(item.file));
-      }catch(err){
-        contentEl.innerHTML = `<p style="color:crimson">Error loading proposal: ${escapeHtml(err.message)}</p>`;
-      }
-    }
-
-    async function init(){
-      try{
-        const data = await fetchJSON('Resources/proposals.json');
-        window.__proposals = data.proposals || [];
-        renderList(window.__proposals);
-        // load from hash if present
-        const hash = decodeURIComponent(location.hash.slice(1));
-        if(hash){
-          const found = window.__proposals.find(p=>p.file === hash);
-          if(found) loadProposal(found);
-        }
-      }catch(err){
-        proposalsListEl.innerHTML = `<li style="color:crimson">Failed to load proposals index: ${escapeHtml(err.message)}</li>`;
-      }
-    }
-
-    function renderList(items){
-      proposalsListEl.innerHTML = '';
-      items.forEach(item=> proposalsListEl.appendChild(makeListItem(item)));
-    }
-
-    searchEl.addEventListener('input', ()=>{
-      const q = searchEl.value.trim().toLowerCase();
-      const filtered = window.__proposals.filter(p=> (p.title||'').toLowerCase().includes(q) || (p.author||'').toLowerCase().includes(q) || (p.summary||'').toLowerCase().includes(q) );
-      renderList(filtered);
-    });
-
-    // init on page load
-    window.addEventListener('load', init);
-  </script>
 </body>
 </html>
-
